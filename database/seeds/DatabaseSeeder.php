@@ -17,10 +17,10 @@ class DatabaseSeeder extends Seeder
         DB::table('users')->delete();
         DB::table('calendars')->delete();
         DB::table('events')->delete();
-                */
+                
         $this->call('UserTableSeeder');
-        //$this->call('ApiSeeder');
-        //$this->command->info('Seeding finished.'); // show information in the command line after everything is run
+        $this->call('ApiSeeder');
+        $this->command->info('Seeding finished.'); // show information in the command line after everything is run
         Model::reguard();
     }
 }

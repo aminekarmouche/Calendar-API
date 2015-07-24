@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use App\Event; 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
@@ -17,8 +17,8 @@ class CalendarEventController extends Controller
     public function index()
     {
         //return in json
-        $calendars = Calendar::all();
-        return $calendars;
+        $events = Event::all();
+        return $events;
     }
 
     /**

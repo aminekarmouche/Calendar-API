@@ -34,6 +34,13 @@ class ApiSeeder extends Seeder
         	'timezone' => 'GMT',
         	'user_id' => $firstUser,
         	]);
+        $calendar2 = DB::table('calendars')->insertGetID([
+            'summary' => 'Professional Calendar',
+            'description' => 'A professiona one!',
+            'location' => 'Morocco',
+            'timezone' => 'GMT',
+            'user_id' => $firstUser,
+            ]);
         $this->command->info('Calendar1 is created!');
 
         $event1 = DB::table('events')->insertGetID([

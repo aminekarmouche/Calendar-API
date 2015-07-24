@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Calendar; 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Auth;
 
 class CalendarsController extends Controller
 {
@@ -22,13 +23,13 @@ class CalendarsController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Create a new calendar for the authenticated user.
      *
      * @return Response
      */
     public function create()
     {
-        //
+        
 
     }
 
@@ -40,19 +41,24 @@ class CalendarsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Calendar::create([
+            'summary' => 'Personal Calendar',
+            'description' => 'A personal calendar for things outside work!',
+            'location' => 'Morocco',
+            'timezone' => 'GMT',
+            'user_id' => Auth::user()->id,
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * Display a specific calendar
      *
      * @param  int  $id
      * @return Response
      */
     public function show($id)
     {
-        //
-        return $id;
+        return Calendar::find($id);
     }
 
     /**
@@ -79,13 +85,14 @@ class CalendarsController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the a specific calendar
      *
      * @param  int  $id
      * @return Response
      */
     public function destroy($id)
-    {
-        //
+    {   
+        $calendar= Calendar::find($id);
+        $calendar->delete();
     }
 }

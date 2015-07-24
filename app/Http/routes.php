@@ -17,9 +17,9 @@ Route::get('/', function () {
 });
 
 
-Route::get('auth/api', ['middleware' => 'auth.basic.once', function() {
+/*Route::get('auth/api', ['middleware' => 'auth.basic.once', function() {
     // Only authenticated users may enter...
-}]);
+}]);*/
 
 //REST routing!
 Route::resource('calendars', 'CalendarsController');
