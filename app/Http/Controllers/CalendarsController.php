@@ -7,6 +7,7 @@ use App\Calendar;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Auth;
+use Input;
 
 class CalendarsController extends Controller
 {
@@ -19,6 +20,7 @@ class CalendarsController extends Controller
     {
         //return in json
         $calendars = Calendar::all();
+        $user = Auth::user();
         return $calendars;
     }
 
@@ -41,13 +43,15 @@ class CalendarsController extends Controller
      */
     public function store(Request $request)
     {
-        Calendar::create([
-            'summary' => 'Personal Calendar',
-            'description' => 'A personal calendar for things outside work!',
-            'location' => 'Morocco',
-            'timezone' => 'GMT',
-            'user_id' => Auth::user()->id,
-        ]);
+
+        $calendar = Calendar::create([
+        'summary' => $request->summary,
+        'description' => $request->description, 
+        'location' => $request->location,
+        'timezone' => $request->timezone,
+        'user_id' => $request->user_id,
+            ]);
+        $calendar->save();
     }
 
     /**

@@ -12,7 +12,7 @@
 */
 
 
-Route::get('api/v1/', function () {
+Route::get('/', function () {
     return view('welcome');
 });
 
@@ -22,5 +22,5 @@ Route::get('api/v1/', function () {
 }]);*/
 
 //REST routing!
-Route::resource('api/v1/calendars', 'CalendarsController');
-Route::resource('api/v1/calendars.events', 'CalendarEventController');
+Route::resource('calendars', 'CalendarsController');
+Route::resource('calendars.events', 'CalendarEventController');
