@@ -94,16 +94,14 @@ class CalendarsController extends Controller
         $calendar->timezone = $request->timezone;*/
         
         //$calendar->save();
-        $user = Auth::user();
+
+/*        $user = Auth::user();
         Calendar::where('id', $id)
                   ->where('user_id', $user->id)
                   ->update([
-                    'summary' => $request->summary,
-                    'description' => $request->description, 
-                    'location' => $request->location,
-                    'timezone' => $request->timezone,
+                    'summary' => $request->summary
                     ]);
-
+*/      dd($request->summary);
     }   
 
     /**
