@@ -18,9 +18,8 @@ class CalendarsController extends Controller
      */
     public function index()
     {
-        //return in json
-        $calendars = Calendar::all();
         $user = Auth::user();
+        $calendars = Calendar::where('user_id', $user->id)->get();
         return $calendars;
     }
 
@@ -43,13 +42,14 @@ class CalendarsController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
 
         $calendar = Calendar::create([
         'summary' => $request->summary,
         'description' => $request->description, 
         'location' => $request->location,
         'timezone' => $request->timezone,
-        'user_id' => $request->user_id,
+        'user_id' => $user->id,
             ]);
         $calendar->save();
     }
@@ -62,7 +62,8 @@ class CalendarsController extends Controller
      */
     public function show($id)
     {
-        return Calendar::find($id);
+        $user = Auth::user();
+        return Calendar::find($id)->where('user_id', $user->id)->get();
     }
 
     /**
@@ -85,8 +86,25 @@ class CalendarsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
-    }
+        $calendar = Calendar::find($id);
+
+/*        $calendar->summary = $request->summary;
+        $calendar->description = $request->description; 
+        $calendar->location = $request->location;
+        $calendar->timezone = $request->timezone;*/
+        
+        //$calendar->save();
+        $user = Auth::user();
+        Calendar::where('id', $id)
+                  ->where('user_id', $user->id)
+                  ->update([
+                    'summary' => $request->summary,
+                    'description' => $request->description, 
+                    'location' => $request->location,
+                    'timezone' => $request->timezone,
+                    ]);
+
+    }   
 
     /**
      * Remove the a specific calendar
