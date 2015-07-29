@@ -44,11 +44,24 @@ class ApiSeeder extends Seeder
         $this->command->info('Calendar1 is created!');
 
         $event1 = DB::table('events')->insertGetID([
-        	'start' => '',
-        	'end' => '',
+        	'start' => Carbon\Carbon::now(),
+        	'end' => Carbon\Carbon::now(),
         	'summary' => 'meeting with my friends for coffee!',
         	'calendar_id' => $calendar1,
         	]);
+        $event2 = DB::table('events')->insertGetID([
+            'start' => Carbon\Carbon::now(),
+            'end' => Carbon\Carbon::now(),
+            'summary' => 'event2',
+            'calendar_id' => $calendar1,
+            ]);
+        $event3 = DB::table('events')->insertGetID([
+            'start' => Carbon\Carbon::now(),
+            'end' => Carbon\Carbon::now(),
+            'summary' => 'event 3',
+            'calendar_id' => $calendar1,
+            ]);
+        
         $this->command->info('Event is created!');
 		$this->command->info($event1);
     }

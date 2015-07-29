@@ -16,6 +16,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/amine', function () {
+    return view('welcome');
+});
 
 /*Route::get('auth/api', ['middleware' => 'auth.basic.once', function() {
     // Only authenticated users may enter...
@@ -23,4 +26,5 @@ Route::get('/', function () {
 
 //REST routing!
 Route::resource('calendars', 'CalendarsController');
+Route::delete('calendars/{calendars}/clear', 'CalendarsController@clear');
 Route::resource('calendars.events', 'CalendarEventController');

@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Calendar; 
+use App\Event;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Auth;
 use Input;
+use DB;
 
 class CalendarsController extends Controller
 {
@@ -63,7 +65,9 @@ class CalendarsController extends Controller
     public function show($id)
     {
         $user = Auth::user();
-        return Calendar::find($id)->where('user_id', $user->id)->get();
+        return Calendar::find($id)->where('user_id', '=', $user->id)
+                                  ->where('id', $id)
+                                  ->get();
     }
 
     /**
@@ -101,7 +105,10 @@ class CalendarsController extends Controller
                   ->update([
                     'summary' => $request->summary
                     ]);
-*/      dd($request->summary);
+        
+*/      
+        $data = Input::json();
+        dd($data->summary);
     }   
 
     /**
@@ -114,5 +121,18 @@ class CalendarsController extends Controller
     {   
         $calendar= Calendar::find($id);
         $calendar->delete();
+    }
+
+    /**
+     * Clear  all associated event
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function clear($id)
+    {
+        $user = Auth::user();
+        DB::table('events')->where('events.calendar_id', $id)
+                           ->delete();
     }
 }

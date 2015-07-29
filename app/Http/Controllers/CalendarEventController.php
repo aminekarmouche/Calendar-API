@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Event; 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Auth;
+use DB;
 
 class CalendarEventController extends Controller
 {
@@ -16,8 +18,11 @@ class CalendarEventController extends Controller
      */
     public function index()
     {
-        //return in json
-        $events = Event::all();
+        $user = Auth::user();
+        $events = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
+                                     ->select('events.id', 'events.summary', 'events.start', 'events.end', 'events.calendar_id')
+                                     ->where('user_id', $user->id)
+                                     ->get();
         return $events;
     }
 
@@ -37,9 +42,18 @@ class CalendarEventController extends Controller
      * @param  Request  $request
      * @return Response
      */
-    public function store(Request $request)
+    public function store(Request $request, $calendar_id)
     {
-        //
+        $user = Auth::user();
+
+        $event = Event::create([
+        'summary' => $request->summary,
+        'start' => $request->start, 
+        'end' => $request->end,
+        'calendar_id' => $calendar_id,
+            ]);
+        $event->save();
+        
     }
 
     /**
@@ -48,9 +62,15 @@ class CalendarEventController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function show($id)
+    public function show($calendar_id, $event_id)
     {
-        //
+        $user = Auth::user();
+        $event = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
+                                     ->select('events.id', 'events.summary', 'events.start', 'events.end', 'events.calendar_id')
+                                     ->where('user_id', $user->id)
+                                     ->where('events.id', $event_id)
+                                     ->get();
+        return $event;
     }
 
     /**
@@ -82,8 +102,11 @@ class CalendarEventController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function destroy($id)
+    public function destroy($calendar_id, $event_id)
     {
-        //
+        $user = Auth::user();
+        DB::table('events')->where('events.id', $event_id)
+                                    ->where('calendar_id', $calendar_id)
+                                    ->delete();
     }
 }

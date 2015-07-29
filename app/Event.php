@@ -25,12 +25,12 @@ class Event extends Model
         'calendar_id'
     ];
 
-    /**
+   /* *
     * The attributes that should be mutated to dates.
     *
-    * @var array
-    */
-    protected $dates = ['start', 'end'];
+    * @var array*/
+    
+    //protected $dates = ['start', 'end'];
 
     /**
     * Gets the event's calendar
