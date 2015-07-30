@@ -5,8 +5,21 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\User;
 
+require('vendor/autoload.php');
+
 class ExampleTest extends TestCase
 {
+    //overloading get post put patch and delete methods
+    public function __call($method, $args)
+    {
+        if (in_array($method, ['get', 'post', 'put', 'patch', 'delete']))
+        {
+            return $this->call($method, $args[0]);
+        }
+     
+        throw new BadMethodCallException;
+    }
+
     /**
      * A basic functional test example.
      *
@@ -15,60 +28,17 @@ class ExampleTest extends TestCase
 
     public function testBasicExample()
     {
+        /*$client = new GuzzleHttp\Client();
+        $response = $client->get('http://localhost:9000/', ['auth' =>  ['first@gmail.com', 'secret']]);
+        $this->assertEquals(200, $response->getStatusCode());
 
-
-/*        $user = factory(App\User::class)->create([
-            'name' =>'amine',
-            'email' => 'amine2@gmail.com',
-            'password' => bcrypt('secret')
-            ]);*/
-
-        //$this->seeInDatabase('users', ['email' => 'first@gmail.com']);
-        //$this->actingAs($user)->visit('/');
- 
-
-/*        $this->visit('/')
-             ->see('Laravel 5');
-       $user = factory(App\User::class)->create([
-            'name' =>'amine',
-            'email' => 'amine@gmail.com',
-            'password' => bcrypt('secret')
-            ]);
-
-        $this->withSession(['foo' => 'bar'])
-             ->visit('/');
-        $this->actingAs($user)
-             ->get('/');
-             
+        $response = $client->get('http://localhost:9000/calendars', ['auth' =>  ['first@gmail.com', 'secret']]);
+        $this->assertEquals(200, $response->getStatusCode());*/
     }
 
-    public function testApi()
-    {
-        $user = factory('App\User')->create();
-        $this->withSession([])
-             ->visit('/');
-
-        $this->actingAs($user)
-             ->withSession(['email' => 'amine@gmail.com',
-                            'password' => bcrypt('secret')
-                            ])
-             ->visit('/')
-             ->see('Laravel 5');
-        
-    }
+    
 
 
-
-    public function shouldAuthenticateUsingAllGivenParameters($login, $password, $method)
-    {
-        $httpClient = $this->getHttpClientMock();
-        $httpClient->expects($this->once())
-            ->method('authenticate')
-            ->with($login, $password, $method);
-        $client = new Client($httpClient);
-        $client->authenticate($login, $password, $method);
-*/
-    }
     
 
 }
