@@ -5,8 +5,18 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use GuzzleHttp\Client;
 
+
 class CalendarsControllerTest extends TestCase
 {
+    protected $questionMock;
+    
+    //setUp function
+    public function setUp()
+    {
+        parent::setUp();
+        $this->calendarMock = Mockery::mock('App\Calendar');
+
+    }
 
     //overloading get post put patch and delete methods
     public function __call($method, $args)
@@ -19,15 +29,19 @@ class CalendarsControllerTest extends TestCase
         throw new BadMethodCallException;
     }
 
-    //setUp function
-	public function setUp()
+    public function test_index_calendars_index()
     {
-        parent::setUp();
-
+        $this->calendarMock
+             ->shouldReceive('where')
+             ->andReturn($calendars);
+        $this->app->instance('App\Calendar', $this->questionMock);
+        $this->call('GET', 'calendars');
     }
 
+
+
     //testing the index function
-    public function test_index_calendars()
+    public function test_calendars()
     {
         $client = new GuzzleHttp\Client(['base_uri' => 'http://localhost:9000', 'auth' => ['first@gmail.com', 'secret']]);
 
@@ -65,6 +79,11 @@ class CalendarsControllerTest extends TestCase
     public function test_show_calendar()
     {
 
+    }
+
+    public function tearDown()
+    {
+      Mockery::close();
     }
 
 }
