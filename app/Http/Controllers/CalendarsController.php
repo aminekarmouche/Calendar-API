@@ -88,27 +88,19 @@ class CalendarsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $calendar = Calendar::find($id);
-
-/*        $calendar->summary = $request->summary;
-        $calendar->description = $request->description; 
-        $calendar->location = $request->location;
-        $calendar->timezone = $request->timezone;*/
-        
-        //$calendar->save();
-
-/*        $user = Auth::user();
-        Calendar::where('id', $id)
-                  ->where('user_id', $user->id)
-                  ->update([
-                    'summary' => $request->summary
-                    ]);
-        
-*/      
-        $data = Input::json();
-        dd($data->summary);
-    }   
-
+        if(!Auth::user())
+        {
+            return response('You are not logged in!', 401);
+        } else {
+            $calendar = Calendar::find($id)->where('user_id', '=', $this->user->id)
+                                           ->update([
+                                            'summary' => $request->summary,
+                                            'description' => $request->description, 
+                                            'location' => $request->location,
+                                            'timezone' => $request->timezone
+                                            ]);
+        }
+}
     /**
      * Remove the a specific calendar
      *
