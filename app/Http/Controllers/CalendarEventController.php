@@ -109,4 +109,20 @@ class CalendarEventController extends Controller
                                     ->where('calendar_id', $calendar_id)
                                     ->delete();
     }
+
+    public function ical($calendar_id, $event_id)
+    {
+
+        $event = Event::find($event_id);
+
+        $vCalendar = new \Eluceo\iCal\Component\Calendar('www.example.com');
+        $vEvent = new \Eluceo\iCal\Component\Event();
+
+        $vEvent->setDtStart($event->start);
+        $vEvent->setDtEnd($event->start);
+        $vEvent->setNoTime(true);
+        $vEvent->setSummary($event->summary);
+
+        return ($vEvent);
+    }
 }

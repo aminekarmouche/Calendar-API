@@ -30,7 +30,7 @@ class Event extends Model
     *
     * @var array*/
     
-    sprotected $dates = ['start', 'end'];
+    protected $dates = ['start', 'end'];
 
     /**
     * Gets the event's calendar
