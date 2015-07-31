@@ -23,4 +23,5 @@ Route::get('/', function () {
 //REST routing!
 Route::resource('calendars', 'CalendarsController');
 Route::delete('calendars/{calendars}/clear', 'CalendarsController@clear');
+Route::get('calendars/{calendars}/ical', 'CalendarsController@ical');
 Route::resource('calendars.events', 'CalendarEventController');

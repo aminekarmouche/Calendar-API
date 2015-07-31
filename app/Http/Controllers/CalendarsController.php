@@ -19,10 +19,12 @@ class CalendarsController extends Controller
     {
         $this->user = Auth::user();
     }
+
+
     /**
-     * Display a listing of the resource.
+     * Display all calendars 
      *
-     * @return Response
+     * @return Mixed
      */
     public function index()
     {
@@ -100,7 +102,8 @@ class CalendarsController extends Controller
                                             'timezone' => $request->timezone
                                             ]);
         }
-}
+    }
+    
     /**
      * Remove the a specific calendar
      *
@@ -123,5 +126,13 @@ class CalendarsController extends Controller
     {
         DB::table('events')->where('events.calendar_id', $id)
                            ->delete();
+    }
+
+    public function ical($id)
+    {
+        $calendar = Calendar::find($id);
+        $vCalendar = new \Eluceo\iCal\Component\Calendar();
+        return ($vCalendar);
+        
     }
 }
