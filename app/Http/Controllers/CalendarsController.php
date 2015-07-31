@@ -13,6 +13,12 @@ use DB;
 
 class CalendarsController extends Controller
 {
+    private $user;
+
+    public function __construct()
+    {
+        $this->user = Auth::user();
+    }
     /**
      * Display a listing of the resource.
      *
@@ -20,20 +26,13 @@ class CalendarsController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
-        $calendars = Calendar::where('user_id', $user->id)->get();
-        return $calendars;
-    }
-
-    /**
-     * Create a new calendar for the authenticated user.
-     *
-     * @return Response
-     */
-    public function create()
-    {
+        try {
+            $calendars = Calendar::where('user_id', $this->user->id)->get();
+            return $calendars;   
+           } catch (Exception $e) {
+               return response($e->getMessage(), 500);
+           }   
         
-
     }
 
     /**
@@ -44,16 +43,19 @@ class CalendarsController extends Controller
      */
     public function store(Request $request)
     {
-        $user = Auth::user();
-
-        $calendar = Calendar::create([
-        'summary' => $request->summary,
-        'description' => $request->description, 
-        'location' => $request->location,
-        'timezone' => $request->timezone,
-        'user_id' => $user->id,
-            ]);
-        $calendar->save();
+        if (!Auth::user()) {
+            return response('You are not logged in!', 401);
+        } else 
+        {
+            $calendar = Calendar::create([
+            'summary' => $request->summary,
+            'description' => $request->description, 
+            'location' => $request->location,
+            'timezone' => $request->timezone,
+            'user_id' => $this->user->id,
+                ]);
+            $calendar->save();    
+        }
     }
 
     /**
@@ -63,26 +65,22 @@ class CalendarsController extends Controller
      * @return Response
      */
     public function show($id)
-    {
-        $user = Auth::user();
-        return Calendar::find($id)->where('user_id', '=', $user->id)
-                                  ->where('id', $id)
-                                  ->get();
+    {   
+        if (!Auth::user()) {
+            return response('You are not logged in!', 401);
+        } else {
+            try {
+                return Calendar::find($id)->where('user_id', '=', $this->user->id)
+                                          ->where('id', $id)
+                                          ->get();
+                } catch (Exception $e) {
+                    return response('Calendar Not Found!', 404);
+                }    
+        } 
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * Update the specified calendar information
      *
      * @param  Request  $request
      * @param  int  $id
@@ -131,7 +129,6 @@ class CalendarsController extends Controller
      */
     public function clear($id)
     {
-        $user = Auth::user();
         DB::table('events')->where('events.calendar_id', $id)
                            ->delete();
     }
