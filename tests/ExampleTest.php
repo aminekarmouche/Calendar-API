@@ -20,25 +20,32 @@ class ExampleTest extends TestCase
         throw new BadMethodCallException;
     }
 
+    public function setUp()
+    {
+        parent::setUp();
+        Artisan::call('migrate');
+        $this->seed();
+
+        $user = Auth::loginUsingId(2);
+    }
+
     /**
      * A basic functional test example.
      *
      * @return void
      */
 
-    public function testBasicExample()
+    public function test_not_authenticated_user()
     {
-        /*$client = new GuzzleHttp\Client();
-        $response = $client->get('http://localhost:9000/', ['auth' =>  ['first@gmail.com', 'secret']]);
-        $this->assertEquals(200, $response->getStatusCode());
-
-        $response = $client->get('http://localhost:9000/calendars', ['auth' =>  ['first@gmail.com', 'secret']]);
-        $this->assertEquals(200, $response->getStatusCode());*/
+        // Most tests will assume a logged in user
+        // But not this one.
+        Auth::logout();
+        $response = $this->call('GET', '/');    
+        $this->assertEquals('Invalid credentials.', $response->getContent());
     }
 
-    
+    public function test_provide_error_feedback()
+    {
 
-
-    
-
+    }
 }

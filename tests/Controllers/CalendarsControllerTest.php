@@ -8,14 +8,14 @@ use GuzzleHttp\Client;
 
 class CalendarsControllerTest extends TestCase
 {
-    protected $questionMock;
     
     //setUp function
     public function setUp()
     {
         parent::setUp();
-        $this->calendarMock = Mockery::mock('App\Calendar');
-
+        Artisan::call('migrate');
+        $this->seed();
+        //$this->calendarMock = Mockery::mock('App\Calendar');
     }
 
     //overloading get post put patch and delete methods
@@ -31,59 +31,25 @@ class CalendarsControllerTest extends TestCase
 
     public function test_index_calendars_index()
     {
-        $this->calendarMock
+/*        $this->calendarMock
              ->shouldReceive('where')
              ->andReturn($calendars);
         $this->app->instance('App\Calendar', $this->questionMock);
-        $this->call('GET', 'calendars');
+        $this->call('GET', 'calendars');*/
+
     }
-
-
 
     //testing the index function
     public function test_calendars()
     {
-        $client = new GuzzleHttp\Client(['base_uri' => 'http://localhost:9000', 'auth' => ['first@gmail.com', 'secret']]);
-
+/*        $client = new GuzzleHttp\Client(['base_uri' => 'http://localhost:9000', 'auth' => ['first@gmail.com', 'secret']]);
         $response = $client->get('calendars');
         $this->assertEquals(200, $response->getStatusCode());
-
         //$res = $this->get('/calendars');
         
         //decode to json
         $data = json_decode($response->getBody(true), true);
-        $this->assertNotNull($data);
+        $this->assertNotNull($data);*/
     }
     
-    public function test_store_calendar()
-    {
-       
-
-    }
-
-    public function test_destroy_calendar()
-    {
-
-    }
-
-    public function test_update_calendar()
-    {
-
-    }
-
-    public function test_clear_calendar_events()
-    {
-
-    }
-
-    public function test_show_calendar()
-    {
-
-    }
-
-    public function tearDown()
-    {
-      Mockery::close();
-    }
-
 }
