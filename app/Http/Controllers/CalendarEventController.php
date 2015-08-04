@@ -6,34 +6,45 @@ use Illuminate\Http\Request;
 use App\Event; 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use Auth;
-use DB;
+use App\Calendar;
+use Auth, DB, Input;
 
 class CalendarEventController extends Controller
 {
+    private $user;
+
+
+    public function __construct()
+    {
+        $this->user = Auth::user();
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return Response
      */
-    public function index()
+    public function index($calendar_id)
     {
-        $user = Auth::user();
-        $events = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
-                                     ->select('events.id', 'events.summary', 'events.start', 'events.end', 'events.calendar_id')
-                                     ->where('user_id', $user->id)
-                                     ->get();
-        return $events;
-    }
+        try
+        {
+            $events = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
+                                         ->select('events.id', 'events.summary', 'events.start', 'events.end', 'events.calendar_id')
+                                         ->where('user_id', $this->user->id)
+                                         ->where('calendars.id', $calendar_id)
+                                         ->get();
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    public function create()
-    {
-        //
+            if (Input::get('format') == 'ical') {
+
+            } else {
+                return $events;    
+            }            
+        } catch(Exception $e) 
+        {
+            return response($e->getMessage(), 500);
+        }
+
+        
     }
 
     /**
@@ -44,16 +55,19 @@ class CalendarEventController extends Controller
      */
     public function store(Request $request, $calendar_id)
     {
-        $user = Auth::user();
-
-        $event = Event::create([
-        'summary' => $request->summary,
-        'start' => $request->start, 
-        'end' => $request->end,
-        'calendar_id' => $calendar_id,
-            ]);
-        $event->save();
-        
+        if (Calendar::find($calendar_id)->user_id = $this->user->id)
+        {
+            $event = Event::create([
+            'summary' => $request->summary,
+            'start' => $request->start, 
+            'end' => $request->end,
+            'calendar_id' => $calendar_id,
+                ]);
+            $event->save();
+        } else 
+        {
+            return response('You are not logged in!', 401);
+        }
     }
 
     /**
@@ -64,24 +78,36 @@ class CalendarEventController extends Controller
      */
     public function show($calendar_id, $event_id)
     {
-        $user = Auth::user();
-        $event = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
-                                     ->select('events.id', 'events.summary', 'events.start', 'events.end', 'events.calendar_id')
-                                     ->where('user_id', $user->id)
-                                     ->where('events.id', $event_id)
-                                     ->get();
-        return $event;
-    }
+        try 
+        {        
+            if (Input::get('format') == 'ical') {
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function edit($id)
-    {
-        //
+                $event = Event::find($event_id);
+
+                $vCalendar = new \Eluceo\iCal\Component\Calendar('www.example.com');
+                $vEvent = new \Eluceo\iCal\Component\Event();
+
+                $vEvent->setDtStart($event->start);
+                $vEvent->setDtEnd($event->start);
+                $vEvent->setNoTime(true);
+                $vEvent->setSummary($event->summary);
+
+                return ($vEvent);            
+
+            } else {
+
+                $event = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
+                                             ->select('events.id', 'events.summary', 'events.start', 'events.end', 'events.calendar_id')
+                                             ->where('user_id', $this->user->id)
+                                             ->where('calendars.id', $calendar_id)
+                                             ->where('events.id', $event_id)
+                                             ->get();
+                return $event;                                
+            }
+        } catch(Exception $e) 
+        {
+            return response('Not Found!', 404);
+        }
     }
 
     /**
@@ -91,9 +117,25 @@ class CalendarEventController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $calendar_id, $event_id)
     {
-        //
+        try
+        {
+            $event = $event = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
+                                         ->select('events.id', 'events.summary', 'events.start', 'events.end', 'events.calendar_id')
+                                         ->where('user_id', $this->user->id)
+                                         ->where('calendars.id', $calendar_id)
+                                         ->where('events.id', $event_id)
+                                         ->update([
+                                            'events.summary' => $request->summary,
+                                            'events.start' => $request->start, 
+                                            'events.end' => $request->end
+                                            ]);
+        } catch(Exception $e) 
+        {
+            return response($e->getMessage(), 500);
+        }
+        
     }
 
     /**
@@ -104,25 +146,16 @@ class CalendarEventController extends Controller
      */
     public function destroy($calendar_id, $event_id)
     {
-        $user = Auth::user();
-        DB::table('events')->where('events.id', $event_id)
+        try
+        {
+            DB::table('events')->where('events.id', $event_id)
                                     ->where('calendar_id', $calendar_id)
                                     ->delete();
+        } catch(Exception $e) 
+        {
+            return response($e->getMessage(), 500);
+        }
     }
 
-    public function ical($calendar_id, $event_id)
-    {
 
-        $event = Event::find($event_id);
-
-        $vCalendar = new \Eluceo\iCal\Component\Calendar('www.example.com');
-        $vEvent = new \Eluceo\iCal\Component\Event();
-
-        $vEvent->setDtStart($event->start);
-        $vEvent->setDtEnd($event->start);
-        $vEvent->setNoTime(true);
-        $vEvent->setSummary($event->summary);
-
-        return ($vEvent);
-    }
 }

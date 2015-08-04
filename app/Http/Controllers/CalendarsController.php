@@ -7,9 +7,7 @@ use App\Calendar;
 use App\Event;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use Auth;
-use Input;
-use DB;
+use Auth, Input, DB;
 
 class CalendarsController extends Controller
 {
@@ -45,10 +43,6 @@ class CalendarsController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Auth::user()) {
-            return response('You are not logged in!', 401);
-        } else 
-        {
             $calendar = Calendar::create([
             'summary' => $request->summary,
             'description' => $request->description, 
@@ -57,7 +51,6 @@ class CalendarsController extends Controller
             'user_id' => $this->user->id,
                 ]);
             $calendar->save();    
-        }
     }
 
     /**
@@ -68,17 +61,14 @@ class CalendarsController extends Controller
      */
     public function show($id)
     {   
-        if (!Auth::user()) {
-            return response('You are not logged in!', 401);
-        } else {
+
             try {
                 return Calendar::find($id)->where('user_id', '=', $this->user->id)
                                           ->where('id', $id)
                                           ->get();
                 } catch (Exception $e) {
                     return response('Calendar Not Found!', 404);
-                }    
-        } 
+                }     
     }
 
     /**
@@ -90,10 +80,8 @@ class CalendarsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if(!Auth::user())
+        try
         {
-            return response('You are not logged in!', 401);
-        } else {
             $calendar = Calendar::find($id)->where('user_id', '=', $this->user->id)
                                            ->update([
                                             'summary' => $request->summary,
@@ -101,7 +89,11 @@ class CalendarsController extends Controller
                                             'location' => $request->location,
                                             'timezone' => $request->timezone
                                             ]);
+        } catch(Exception $e) 
+        {
+            return response($e->getMessage(), 500);
         }
+
     }
     
     /**
@@ -111,10 +103,16 @@ class CalendarsController extends Controller
      * @return Response
      */
     public function destroy($id)
-    {   
-        $calendar= Calendar::find($id);
-        $calendar->delete();
+    {
+        try {
+                $calendar= Calendar::find($id);
+                $calendar->delete();
+            } catch(Exception $e) 
+            {
+                return response($e->getMessage(), 500);
+            }  
     }
+
 
     /**
      * Clear  all associated event
@@ -126,13 +124,5 @@ class CalendarsController extends Controller
     {
         DB::table('events')->where('events.calendar_id', $id)
                            ->delete();
-    }
-
-    public function ical($id)
-    {
-        $calendar = Calendar::find($id);
-        $vCalendar = new \Eluceo\iCal\Component\Calendar();
-        return ($vCalendar);
-        
     }
 }
