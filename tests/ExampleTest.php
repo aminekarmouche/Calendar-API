@@ -4,11 +4,15 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\User;
+use GuzzleHttp\Client;
 
 require('vendor/autoload.php');
 
 class ExampleTest extends TestCase
 {
+
+
+
     //overloading get post put patch and delete methods
     public function __call($method, $args)
     {
@@ -26,7 +30,9 @@ class ExampleTest extends TestCase
         Artisan::call('migrate');
         $this->seed();
 
-        $user = Auth::loginUsingId(2);
+/*        $client = new GuzzleHttp\Client(['base_uri' => 'http://localhost:9000', 'auth' => ['first@gmail.com', 'secret']]);
+        $response = $client->get('calendars');
+        dd($response);*/
     }
 
     /**
@@ -37,15 +43,5 @@ class ExampleTest extends TestCase
 
     public function test_not_authenticated_user()
     {
-        // Most tests will assume a logged in user
-        // But not this one.
-        Auth::logout();
-        $response = $this->call('GET', '/');    
-        $this->assertEquals('Invalid credentials.', $response->getContent());
-    }
-
-    public function test_provide_error_feedback()
-    {
-
     }
 }
