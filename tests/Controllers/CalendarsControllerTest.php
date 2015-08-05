@@ -35,28 +35,24 @@ class CalendarsControllerTest extends TestCase
 
     public function test_index_calendars()
     {
-
+        //testing json format
         $uri = 'calendars';
 
         //200 response
         $response = $this->client->get($uri);
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody(true), true);
+        
         $this->assertNotNull($data);
         $this->assertNotEmpty($data);
-        $this->assertArrayHasKey('summary', $data);
 
-
+        //testing iCal format
         $uri = 'calendars?format=ical';
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody(true), true);
+        
         $this->assertNotNull($data);
         $this->assertNotEmpty($data);
-
-
-
-        //dd($data);
-        //$this->assertSame(array('id' => 1, 'name' => 'igorw'), $data['users'][0]);
 
 
     }
@@ -86,16 +82,16 @@ class CalendarsControllerTest extends TestCase
 
     public function test_store_calendar()
     {
-/*        $uri = 'calendars';
+        /*$uri = 'calendars';
 
         $response = $this->client->post($uri, [
             'form_params' => ['summary' => 'my summary',
-                       'desciption' => 'A random testing calendar',
-                       'location' => 'Here',
-                       'timezone' => 'GMT',
-                       'user_id' => '1'
+                              'desciption' => 'A random testing calendar',
+                              'location' => 'Here',
+                              'timezone' => 'GMT+1'
                        ]
-        ]);*/
+        ]);
+        $this->assertEquals(201, $response->getStatusCode());*/
 
     }
 
@@ -106,7 +102,8 @@ class CalendarsControllerTest extends TestCase
 
         $response = $this->client->put($uri, [
             'form_params' => ['summary' => 'test summary',
-                              'timezone' => 'GMT+5']
+                              'timezone' => 'GMT+5'
+                              ]
         ]);
 
         //add assertions
@@ -123,11 +120,14 @@ class CalendarsControllerTest extends TestCase
 
     public function test_delete_calendar()
     {
-        /*$uri = 'calendars/1';
+        $uri = 'calendars/1';
+        
         $response = $this->client->delete($uri);
-*/
-        //$response_del = $this->client->get($uri);
-        //$this->assertEquals(404, $response_del->getStatusCode());
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+/*        $response_del = $this->client->get($uri);
+        $this->assertEquals(404, $response_del->getStatusCode());*/
 
     }
 
