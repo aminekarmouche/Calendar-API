@@ -7,7 +7,7 @@ use App\Calendar;
 use App\Event;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use Auth, Input, DB;
+use Auth, Input, DB, Validator;
 
 class CalendarsController extends Controller
 {
@@ -18,7 +18,6 @@ class CalendarsController extends Controller
         $this->user = Auth::user();
     }
 
-
     /**
      * Display all calendars 
      *
@@ -26,13 +25,22 @@ class CalendarsController extends Controller
      */
     public function index()
     {
-        try {
-            $calendars = Calendar::where('user_id', $this->user->id)->get();
-            return $calendars;   
-           } catch (Exception $e) {
-               return response($e->getMessage(), 500);
+        $calendars = Calendar::where('user_id', $this->user->id)->get();
+        $ical_calendars = array();
+        try {            
+            if (Input::get('format') == 'ical') {
+                foreach ($calendars as $calendar) {
+                    $cal = calendar_to_ical($calendar);
+                    $ical_calendars[] = $cal->render();
+                }
+                return $ical_calendars;
+            }
+            else {
+                return $calendars;
+            }   
+           } catch (ModelNotFoundException $e) {
+               return response($e->getMessage(), 404);
            }   
-        
     }
 
     /**
@@ -43,19 +51,43 @@ class CalendarsController extends Controller
      */
     public function store(Request $request)
     {
-            $calendar = Calendar::create([
-            'summary' => $request->summary,
-            'description' => $request->description, 
-            'location' => $request->location,
-            'timezone' => $request->timezone,
-            'user_id' => $this->user->id,
+        $rules = [
+            'summary' => 'required',
+            'description' => 'required',
+            'location' => 'required',
+            'timezone' => 'required|timezone'
+        ];
+
+        $messages = [
+            'required' => 'The :attribute field is required.',
+            'timezone' => 'The :attribute field should be a valid timezone'
+        ];
+
+        try
+        {
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                return response($validator->errors(), 400);
+            } else {
+                $calendar = Calendar::create([
+                    'summary' => $request->summary,
+                    'description' => $request->description, 
+                    'location' => $request->location,
+                    'timezone' => $request->timezone,
+                    'user_id' => $this->user->id,
                 ]);
-            $calendar->save();
-            return response($calendar, 201);    
+                $calendar->save();
+                return response($calendar, 201);    
+            }
+        } catch (Exception $e)
+        {
+            return response($e->getMessage(), 404);
+        }
     }
 
+
     /**
-     * Display a specific calendar
+     * Display a specific calendar 
      *
      * @param  int  $id
      * @return Response
@@ -63,13 +95,22 @@ class CalendarsController extends Controller
     public function show($id)
     {   
 
-            try {
-                return Calendar::find($id)->where('user_id', '=', $this->user->id)
-                                          ->where('id', $id)
-                                          ->get();
-                } catch (Exception $e) {
-                    return response('Calendar Not Found!', 404);
-                }     
+        try {
+            $calendar_id = Calendar::findOrFail($id)->where('user_id', '=', $this->user->id)
+                                                    ->where('id', $id)
+                                                    ->first()->id;
+            $calendar = Calendar::findOrFail($calendar_id);
+
+            if (Input::get('format') == 'ical') {
+
+                return calendar_to_ical($calendar)->render();        
+            } else {
+                return response($calendar, 200);
+            }
+        
+        } catch (ModelNotFoundException $e) {
+            return response('Calendar Not Found!', 404);
+        }     
     }
 
     /**
@@ -83,18 +124,32 @@ class CalendarsController extends Controller
     {
         try
         {
-            $calendar = Calendar::find($id)->where('user_id', '=', $this->user->id)
-                                           ->update([
-                                            'summary' => $request->summary,
-                                            'description' => $request->description, 
-                                            'location' => $request->location,
-                                            'timezone' => $request->timezone
-                                            ]);
-        } catch(Exception $e) 
-        {
-            return response($e->getMessage(), 500);
-        }
+            $rules = [
+            'timezone' => 'timezone'
+            ];
 
+            $messages = [
+                'timezone' => 'The :attribute field should be a valid timezone'
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                return response($validator->errors(), 400);
+            } 
+
+            $calendar_id = Calendar::findOrFail($id)->where('user_id', '=', $this->user->id)
+                                                         ->where('id', $id)
+                                                         ->first()->id;
+            $calendar = Calendar::findOrFail($calendar_id);
+
+            $calendar->fill(\Request::all());
+            $calendar->save();
+            return response($calendar, 200);
+
+        } catch(ModelNotFoundException $e) 
+        {
+            return response($e->getMessage(), 404);
+        }
     }
     
     /**
@@ -108,22 +163,28 @@ class CalendarsController extends Controller
         try {
                 $calendar= Calendar::find($id);
                 $calendar->delete();
-            } catch(Exception $e) 
+                return response('Calendar Deleted!', 200);
+            } catch(ModelNotFoundException $e) 
             {
-                return response($e->getMessage(), 500);
+                return response('Calendar not found!', 404);
             }  
     }
 
 
     /**
-     * Clear  all associated event
+     * Clear all associated events of a certain calendar
      *
      * @param  int  $id
      * @return Response
      */
     public function clear($id)
     {
-        DB::table('events')->where('events.calendar_id', $id)
-                           ->delete();
+        try {
+            DB::table('events')->where('events.calendar_id', $id)
+                               ->delete();
+            return response('Events Deleted!', 200);
+        } catch (ModelNotFoundException $e) {
+            return response('Calendar not found!', 404);
+        }
     }
 }

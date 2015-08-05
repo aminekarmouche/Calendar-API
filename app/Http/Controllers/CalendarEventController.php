@@ -8,24 +8,25 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Calendar;
 use Auth, DB, Input;
+use Validator;
+use App\Helpers\helpers;
 
 class CalendarEventController extends Controller
 {
     private $user;
-
-
+    //Constructor
     public function __construct()
     {
         $this->user = Auth::user();
     }
 
     /**
-     * Display a listing of the resource.
-     *
+     * Display a listing of all events of a certain calendar
+     * @param int $calendar_id
      * @return Response
      */
     public function index($calendar_id)
-    {
+    {   
         try
         {
             $events = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
@@ -35,28 +36,47 @@ class CalendarEventController extends Controller
                                          ->get();
 
             if (Input::get('format') == 'ical') {
+                
+                $ical_events[] = array();
+                foreach ($events as $event) {
+                    $ical_events[] = event_to_ical($event);
+                }
+                return($ical_events);
 
             } else {
                 return $events;    
             }            
         } catch(Exception $e) 
         {
-            return response($e->getMessage(), 500);
+            return response($e->getMessage(), 404);
         }
 
         
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created event in storage.
      *
      * @param  Request  $request
+     * @param  int  $calendar_id
      * @return Response
      */
     public function store(Request $request, $calendar_id)
     {
-        if (Calendar::find($calendar_id)->user_id = $this->user->id)
-        {
+        $rules = [
+            'summary' => 'required',
+            'start' => 'required|date|before:end',
+            'end' => 'required|date'
+        ];
+
+        $messages = [
+            'required' => 'The :attribute field is required.',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return response($validator->errors(), 400);
+        } else {
             $event = Event::create([
             'summary' => $request->summary,
             'start' => $request->start, 
@@ -65,16 +85,14 @@ class CalendarEventController extends Controller
                 ]);
             $event->save();
             return response($event, 201);  
-        } else 
-        {
-            return response('You are not logged in!', 401);
         }
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified event.
      *
-     * @param  int  $id
+     * @param  int  $calendar_id
+     * @param  int  $ event_id
      * @return Response
      */
     public function show($calendar_id, $event_id)
@@ -85,16 +103,8 @@ class CalendarEventController extends Controller
 
                 $event = Event::find($event_id);
 
-                $vCalendar = new \Eluceo\iCal\Component\Calendar('www.example.com');
-                $vEvent = new \Eluceo\iCal\Component\Event();
-
-                $vEvent->setDtStart($event->start);
-                $vEvent->setDtEnd($event->start);
-                $vEvent->setNoTime(true);
-                $vEvent->setSummary($event->summary);
-
-                return ($vEvent);            
-
+                $ical_event = event_to_ical($event);
+                return $ical_event;
             } else {
 
                 $event = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
@@ -105,44 +115,59 @@ class CalendarEventController extends Controller
                                              ->get();
                 return $event;                                
             }
-        } catch(Exception $e) 
+        } catch(ModelNotFoundException $e) 
         {
             return response('Not Found!', 404);
         }
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified event in storage.
      *
      * @param  Request  $request
-     * @param  int  $id
+     * @param  int  $calendar_id
+     * @param  int  $ event_id
      * @return Response
      */
     public function update(Request $request, $calendar_id, $event_id)
-    {
+    {   
         try
         {
-            $event = $event = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
-                                         ->select('events.id', 'events.summary', 'events.start', 'events.end', 'events.calendar_id')
-                                         ->where('user_id', $this->user->id)
-                                         ->where('calendars.id', $calendar_id)
-                                         ->where('events.id', $event_id)
-                                         ->update([
-                                            'events.summary' => $request->summary,
-                                            'events.start' => $request->start, 
-                                            'events.end' => $request->end
-                                            ]);
-        } catch(Exception $e) 
+            $rules = [
+                'start' => 'date|before:end',
+                'end' => 'date'
+            ];
+
+            $messages = [
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                return response($validator->errors(), 400);
+            } 
+            $event_id = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
+                                             ->select('events.id', 'events.summary', 'events.start', 'events.end', 'events.calendar_id')
+                                             ->where('user_id', $this->user->id)
+                                             ->where('calendars.id', $calendar_id)
+                                             ->where('events.id', $event_id)
+                                             ->first()->id;
+            
+            $event = Event::findOrFail($event_id);
+            $event->fill(\Request::all());
+            $event->save();
+            return response($event, 200);
+
+        } catch(ModelNotFoundException $e) 
         {
-            return response($e->getMessage(), 500);
-        }
-        
+            return response('Event not found!', 404);
+        }  
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified event from storage.
      *
-     * @param  int  $id
+     * @param  int  $calendar_id
+     * @param  int  $ event_id
      * @return Response
      */
     public function destroy($calendar_id, $event_id)
@@ -152,9 +177,9 @@ class CalendarEventController extends Controller
             DB::table('events')->where('events.id', $event_id)
                                     ->where('calendar_id', $calendar_id)
                                     ->delete();
-        } catch(Exception $e) 
+        } catch(ModelNotFoundException $e) 
         {
-            return response($e->getMessage(), 500);
+            return response('Event not found!', 404);
         }
     }
 
