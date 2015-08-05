@@ -17,13 +17,17 @@ class CalendarEventControllerTest extends TestCase
     public function test_index_events()
     {
         $uri = 'calendars/1/events';
+
         $response = $this->client->get($uri);
+
         $this->assertEquals(200, $response->getStatusCode());
     }
     public function test_show_event()
         {
             $uri = 'calendars/1/events/1';
+
             $response = $this->client->get($uri);
+
             $this->assertEquals(200, $response->getStatusCode());
         } 
         
@@ -43,13 +47,14 @@ class CalendarEventControllerTest extends TestCase
     }
     public function test_update_event()
     {
-/*        $uri = 'calendars/1/events/1';
+        $uri = 'calendars/1/events/1';
+        $test_summary = 'test summary';
 
         $response = $this->client->put($uri, [
-            'form_params' => ['summary' => 'modified'               ]
+            'form_params' => ['summary' => $test_summary               ]
         ]);
         $this->assertEquals(200, $response->getStatusCode());
-*/
+        
     }
     public function test_delete_event()
     {

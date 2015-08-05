@@ -10,7 +10,8 @@
         "eluceo/ical": "^0.7.0",
         "phpspec/phpspec": "^2.2",
         "guzzlehttp/guzzle": "^6.0",
-        "mockery/mockery": "^0.9.4"
+        "mockery/mockery": "^0.9.4",
+        "barryvdh/laravel-cors": "0.7.x"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

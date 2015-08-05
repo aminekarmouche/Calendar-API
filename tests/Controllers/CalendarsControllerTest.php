@@ -41,49 +41,84 @@ class CalendarsControllerTest extends TestCase
         //200 response
         $response = $this->client->get($uri);
         $this->assertEquals(200, $response->getStatusCode());
-
         $data = json_decode($response->getBody(true), true);
-        
-        //$this->assertArrayHasKey('id', $data);
-        //$this->assertJson($data);
+        $this->assertNotNull($data);
+        $this->assertNotEmpty($data);
+        $this->assertArrayHasKey('summary', $data);
+
+
+        $uri = 'calendars?format=ical';
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getBody(true), true);
+        $this->assertNotNull($data);
+        $this->assertNotEmpty($data);
+
+
+
+        //dd($data);
+        //$this->assertSame(array('id' => 1, 'name' => 'igorw'), $data['users'][0]);
+
 
     }
 
     public function test_show_calendar(){
         
         $uri = 'calendars/1';
-        $response = $this->client->get($uri);
-        
-        $this->assertEquals(200, $response->getStatusCode());
 
+        $response = $this->client->get($uri, [
+                'headers' => [
+                'User-Agent' => 'testing/1.0',
+                'Accept'     => 'application/json'
+            ]
+        ]);
+        $data = json_decode($response->getBody(true), true);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertNotNull($data);
+        $this->assertNotEmpty($data);
+        $this->assertArrayHasKey('summary', $data);
+
+        
+
+        /*$this->assertEquals('application/json', 
+        $response->getHeader('Content-Type'));*/
 
     }
 
     public function test_store_calendar()
     {
-/*        $calendar_id = uniqid();
-        $uri = 'calendars';
+/*        $uri = 'calendars';
 
-    $response = $this->client->post($uri, [
-        'form_params' => ['summary' => 'my summary',
-                   'desciption' => 'A random testing calendar',
-                   'location' => 'Here',
-                   'timezone' => 'GMT',
-                   'user_id' => '2'
-                   ]
-    ]);*/
+        $response = $this->client->post($uri, [
+            'form_params' => ['summary' => 'my summary',
+                       'desciption' => 'A random testing calendar',
+                       'location' => 'Here',
+                       'timezone' => 'GMT',
+                       'user_id' => '1'
+                       ]
+        ]);*/
 
     }
 
     public function test_update_calendar()
     {
         $uri = 'calendars/1';
+        $test_summary = 'test summary';
 
         $response = $this->client->put($uri, [
-            'form_params' => ['summary' => 'hello'               ]
+            'form_params' => ['summary' => 'test summary',
+                              'timezone' => 'GMT+5']
         ]);
+
+        //add assertions
         $this->assertEquals(200, $response->getStatusCode());
 
+/*        //testing validations
+        $this->assertEquals(400, $this->client->put($uri, [
+            'form_params' => ['timezone' => '5']
+        ])->getStatusCode());*/
+
+        
+        //timezone":["The timezone field should be a valid timezone
     }
 
     public function test_delete_calendar()
@@ -92,14 +127,17 @@ class CalendarsControllerTest extends TestCase
         $response = $this->client->delete($uri);
 */
         //$response_del = $this->client->get($uri);
-        //$this->assertEquals(200, $response_del->getStatusCode());
+        //$this->assertEquals(404, $response_del->getStatusCode());
 
     }
 
     public function test_clear_calendar_events()
     {
-        /*$uri= 'calendar1';
+        /*$uri= 'calendar/1/clear';
+        
         $response = $this->client->delete($uri);
         */
+
+        //Assertions
     }
 }

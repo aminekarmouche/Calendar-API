@@ -41,5 +41,4 @@ class Calendar extends Model
     {
         return $this->hasMany('App\Event');
     }
-    
 }

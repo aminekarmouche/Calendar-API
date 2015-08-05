@@ -50,7 +50,8 @@ class CalendarsController extends Controller
             'timezone' => $request->timezone,
             'user_id' => $this->user->id,
                 ]);
-            $calendar->save();    
+            $calendar->save();
+            return response($calendar, 201);    
     }
 
     /**

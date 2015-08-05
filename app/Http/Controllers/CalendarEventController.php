@@ -64,6 +64,7 @@ class CalendarEventController extends Controller
             'calendar_id' => $calendar_id,
                 ]);
             $event->save();
+            return response($event, 201);  
         } else 
         {
             return response('You are not logged in!', 401);
