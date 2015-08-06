@@ -99,6 +99,8 @@ Update  PUT                             Updates an entire event
 
 ### TODO List
 - OAuth authentication
+- Apply HATEOAS
+- improve doc on [Read the docs!](http://calendar-api.readthedocs.org/en/latest/)
 - Shift towards fat models and skinny controllers 
 - Add multiple timezones
 - Provide iCal support according to accept headers instead of query string
