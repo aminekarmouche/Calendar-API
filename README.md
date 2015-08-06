@@ -51,38 +51,58 @@ Basic auth provided by the Laravel framework
     "end": dateTime
 }
 ```
+### iCal Support
+Calendars and events can be exposed in ical/ics format by using the query format=ical
+
+```
+\?format=ical
+```
 ### Endpoints
 
 Calendars
 
--------------------------------------------------------------------------------------------------------
-|Clear | 	POST		| /calendars/{calendarID}/clear Clear a calendar by deleting all corresponding events |
--------------------------------------------------------------------------------------------------------
-| azaz| dfdfdf|
--------------------------------------------------------------------------------------------------------
-Delete DELETE 	/calendars/{calendarID} 		Delete a calendar
-Get 	GET 		/calendars/{calendarID} 		Return a calendar
-Insert 	POST 		/calendars				Create a calendar
-List	GET		/calendars				List all calendars
-Patch 	PATCH 	/calendars/{calendarID}		Updates partial data of a calendar
-Update PUT 		/calendars/{calendarID} 		Updates an entire calendar
-
+```
+Method  HTTP request                    Description
+---------------------------------------------------------------------------------------------
+Clear  	POST                            Clears a calendar by deleting all corresponding events 
+        /calendars/{calendarID}/clear
+Delete  DELETE 	                 		Deletes a calendar
+        /calendars/{calendarID}
+Get 	GET 	                		Returns a calendar
+        /calendars/{calendarID} 
+Insert 	POST 					        Creates a calendar
+        /calendars
+List	GET		        				Lists all calendars        
+        /calendars
+Patch 	PATCH 	                	    Updates partial data of a calendar
+        /calendars/{calendarID}	
+Update  PUT                             Updates an entire calendar
+        /calendars/{calendarID} 		
+```
 Events
-Delete DELETE 	/calendars/{calendarID}/events/{eventID} 	Delete a calendar
-Get 	GET 		/calendars/{calendarID}/events/{eventID}	Return a calendar
-Insert 	POST 		/calendars/{calendarID}/events		Create a calendar
-List	GET		/calendars/{calendarID}/events		List all calendar events
-Patch 	PATCH 	/calendars/{calendarID}/events/{eventID}	Updates partial data of an event
-Update PUT 		/calendars/{calendarID}/events/{eventID} 	Updates an entire event
-
-
+```
+Method  HTTP request                    Description
+------------------------------------------------------------------------------------------------
+Delete  DELETE 	 	                    Deletes a calendar
+        /calendars/{calendarID}/events/{eventID}
+Get 	GET 		                	Lists a calendar
+        /calendars/{calendarID}/events/{eventID}
+Insert 	POST                        	Creates a calendar
+        /calendars/{calendarID}/events	
+List	GET		                		List all calendar events
+        /calendars/{calendarID}/events
+Patch 	PATCH 	                    	Updates partial data of an event
+        /calendars/{calendarID}/events/{eventID}
+Update  PUT                             Updates an entire event
+        /calendars/{calendarID}/events/{eventID}
+```
 
 ### TODO List
 - OAuth authentication
 - Shift towards fat models and skinny controllers 
 - Add multiple timezones
-- provide iCal support according to accept headers instead of query string
-- Use sqlite as testing database for better speed
+- Provide iCal support according to accept headers instead of query string
+- Configure testing database for better speed
 - Improve tests and use BDD
 
 
