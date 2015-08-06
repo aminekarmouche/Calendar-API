@@ -21,7 +21,9 @@ Route::get('/', function () {
 }]);*/
 
 //REST routing!
-Route::group(['prefix' => 'api/v1'], function () {	
+$prefix = 'api/'.getenv('API_VERSION');
+
+Route::group(['prefix' => $prefix], function () {	
 	Route::resource('calendars', 'CalendarsController');
 	Route::delete('calendars/{calendars}/clear', 'CalendarsController@clear');
 	Route::resource('calendars.events', 'CalendarEventController');

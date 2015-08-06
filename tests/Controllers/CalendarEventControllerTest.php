@@ -25,7 +25,6 @@ class CalendarEventControllerTest extends TestCase
         $data = json_decode($response->getBody(true), true);
         
         $this->assertNotNull($data);
-        $this->assertNotEmpty($data);
 
         //testing iCal format
         $uri = 'calendars/1/events?format=ical';
@@ -78,12 +77,13 @@ class CalendarEventControllerTest extends TestCase
 
     }
 
+
     public function test_delete_event()
-    {
-        
+    {   
         $uri = 'calendars/1/events/1';
         $response = $this->client->delete($uri);
         $this->assertEquals(200, $response->getStatusCode());
     }
+
 
 }

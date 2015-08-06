@@ -64,7 +64,7 @@ class CalendarEventController extends Controller
     public function store(Request $request, $calendar_id)
     {
         $rules = [
-            'summary' => 'required',
+            'summary' => 'required|string',
             'start' => 'required|date|before:end',
             'end' => 'required|date'
         ];
@@ -134,6 +134,7 @@ class CalendarEventController extends Controller
         try
         {
             $rules = [
+                'summary' => 'string',
                 'start' => 'date|before:end',
                 'end' => 'date'
             ];

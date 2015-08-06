@@ -1,8 +1,15 @@
 {
-    "name": "laravel/laravel",
-    "description": "The Laravel Framework.",
+    "name": "CalendarApi",
+    "description": "Calendar Api",
     "keywords": ["framework", "laravel"],
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Amine Karmouche",
+            "email": "amine;karmouche@gmail.com",
+            "role": "Developer"
+        }
+    ],    
     "type": "project",
     "require": {
         "php": ">=5.5.9",
@@ -11,13 +18,17 @@
         "phpspec/phpspec": "^2.2",
         "guzzlehttp/guzzle": "^6.0",
         "mockery/mockery": "^0.9.4",
-        "barryvdh/laravel-cors": "0.7.x"
+        "doctrine/dbal": "^2.5"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
-        "phpunit/phpunit": "~4.0"
+        "phpunit/phpunit": "~4.0",
+        "phpdocumentor/phpdocumentor": "^2.8"
     },
     "autoload": {
+        "files": [
+            "app/Helpers/helpers.php"
+        ],
         "classmap": [
             "database"
         ],

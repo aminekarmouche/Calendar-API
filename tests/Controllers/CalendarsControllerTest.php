@@ -46,6 +46,8 @@ class CalendarsControllerTest extends TestCase
         $this->assertNotNull($data);
         $this->assertNotEmpty($data);
 
+
+
         //testing iCal format
         $uri = 'calendars?format=ical';
         $this->assertEquals(200, $response->getStatusCode());

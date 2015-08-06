@@ -24,7 +24,7 @@ class CalendarsController extends Controller
      * @return Mixed
      */
     public function index()
-    {
+    {   
         $calendars = Calendar::where('user_id', $this->user->id)->get();
         $ical_calendars = array();
         try {            
@@ -52,15 +52,16 @@ class CalendarsController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'summary' => 'required',
-            'description' => 'required',
-            'location' => 'required',
+            'summary' => 'required|string',
+            'description' => 'required|string',
+            'location' => 'required|string',
             'timezone' => 'required|timezone'
         ];
 
         $messages = [
             'required' => 'The :attribute field is required.',
-            'timezone' => 'The :attribute field should be a valid timezone'
+            'timezone' => 'The :attribute field should be a valid timezone',
+            'string' => 'The :attribute field be a string'
         ];
 
         try
@@ -94,7 +95,6 @@ class CalendarsController extends Controller
      */
     public function show($id)
     {   
-
         try {
             $calendar_id = Calendar::findOrFail($id)->where('user_id', '=', $this->user->id)
                                                     ->where('id', $id)
@@ -122,14 +122,20 @@ class CalendarsController extends Controller
      */
     public function update(Request $request, $id)
     {
+        //dd($request->header('content-type'));
+
         try
         {
             $rules = [
+            'summary' => 'string',
+            'description' => 'string',
+            'location' => 'string',            
             'timezone' => 'timezone'
             ];
 
             $messages = [
-                'timezone' => 'The :attribute field should be a valid timezone'
+                'timezone' => 'The :attribute field should be a valid timezone',
+                'string' => 'The :attribute field be a string'
             ];
 
             $validator = Validator::make($request->all(), $rules, $messages);
@@ -169,7 +175,6 @@ class CalendarsController extends Controller
                 return response('Calendar not found!', 404);
             }  
     }
-
 
     /**
      * Clear all associated events of a certain calendar

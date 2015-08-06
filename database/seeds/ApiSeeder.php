@@ -47,7 +47,7 @@ class ApiSeeder extends Seeder
         	'start' => Carbon\Carbon::now(),
         	'end' => Carbon\Carbon::now(),
         	'summary' => 'meeting with my friends for coffee!',
-        	'calendar_id' => $calendar1,
+            'calendar_id' => $calendar1,
         	]);
         $event2 = DB::table('events')->insertGetID([
             'start' => Carbon\Carbon::now(),
