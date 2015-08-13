@@ -102,9 +102,7 @@ Update  PUT                             Updates an entire event
 - Apply HATEOAS
 - improve doc on [Read the docs!](http://calendar-api.readthedocs.org/en/latest/)
 - Shift towards fat models and skinny controllers 
-- Add multiple timezones
+- Add multiple timezones 
 - Provide iCal support according to accept headers instead of query string
 - Configure testing database for better speed
 - Improve tests and use BDD
-
-
