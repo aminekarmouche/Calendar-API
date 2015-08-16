@@ -74,13 +74,14 @@ class CalendarsController extends Controller
             if ($validator->fails()) {
                 return response($validator->errors(), 400);
             } else {
-                $calendar = Calendar::create([
-                    'summary' => $request->summary,
-                    'description' => $request->description, 
-                    'location' => $request->location,
-                    'timezone' => $request->timezone,
-                    'user_id' => $this->user->id,
-                ]);
+
+                $calendar = new Calendar;
+                $calendar->summary = $request->summary;
+                $calendar->description = $request->description;
+                $calendar->location = $request->location;
+                $calendar->timezone = $request->timezone;
+                $calendar->user_id = $this->user->id;
+
                 $calendar->save();
                 return response($calendar, 201);    
             }
@@ -100,10 +101,8 @@ class CalendarsController extends Controller
     public function show($id)
     {   
         try {
-            $calendar_id = Calendar::findOrFail($id)->where('user_id', '=', $this->user->id)
-                                                    ->where('id', $id)
-                                                    ->first()->id;
-            $calendar = Calendar::findOrFail($calendar_id);
+            //get calendar
+            $calendar = $this->user->calendars->find($id);
 
             if (Input::get('format') == 'ical') {
 
@@ -111,7 +110,6 @@ class CalendarsController extends Controller
             } else {
                 return response($calendar, 200);
             }
-        
         } catch (ModelNotFoundException $e) {
             return response('Calendar Not Found!', 404);
         }     
@@ -126,8 +124,6 @@ class CalendarsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //dd($request->header('content-type'));
-
         try
         {
             $rules = [
@@ -145,16 +141,15 @@ class CalendarsController extends Controller
             $validator = Validator::make($request->all(), $rules, $messages);
             if ($validator->fails()) {
                 return response($validator->errors(), 400);
+            } else {
+                $calendar = $this->user->calendars->find($id);
+
+                $calendar->fill(\Request::all());
+                $calendar->save();
+                return response($calendar, 200);
             } 
 
-            $calendar_id = Calendar::findOrFail($id)->where('user_id', '=', $this->user->id)
-                                                         ->where('id', $id)
-                                                         ->first()->id;
-            $calendar = Calendar::findOrFail($calendar_id);
-
-            $calendar->fill(\Request::all());
-            $calendar->save();
-            return response($calendar, 200);
+            
 
         } catch(ModelNotFoundException $e) 
         {
@@ -171,7 +166,8 @@ class CalendarsController extends Controller
     public function destroy($id)
     {
         try {
-                $calendar= Calendar::find($id);
+                
+                $calendar = $this->user->calendars->find($id);
                 $calendar->delete();
                 return response('Calendar Deleted!', 200);
             } catch(ModelNotFoundException $e) 
@@ -189,8 +185,12 @@ class CalendarsController extends Controller
     public function clear($id)
     {
         try {
-            DB::table('events')->where('events.calendar_id', $id)
-                               ->delete();
+            /*DB::table('events')->where('events.calendar_id', $id)
+                               ->delete();*/
+            $events = $this->user->calendars->find($id)->events->all();
+            foreach ($events as $event) {
+                $event->delete();
+            }
             return response('Events Deleted!', 200);
         } catch (ModelNotFoundException $e) {
             return response('Calendar not found!', 404);

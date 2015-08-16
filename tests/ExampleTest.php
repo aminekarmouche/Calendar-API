@@ -11,8 +11,8 @@ require('vendor/autoload.php');
 
 class ExampleTest extends TestCase
 {
+    use DatabaseMigrations;
 
-    use DatabaseTransactions;
     
     //overloading get post put patch and delete methods
     public function __call($method, $args)
@@ -29,7 +29,8 @@ class ExampleTest extends TestCase
     {
         parent::setUp();
         Artisan::call('migrate');
-        $this->seed();
+        Artisan::call('db:seed');
+        //$this->seed('DatabaseSeeder');
 
 /*        $client = new GuzzleHttp\Client(['base_uri' => 'http://localhost:9000', 'auth' => ['first@gmail.com', 'secret']]);
         $response = $client->get('calendars');
@@ -58,8 +59,17 @@ class ExampleTest extends TestCase
                                                  ->each(function($u){
                                                     $u->user()->save(factory('App\User')->make());
                                                  });*/
+
+        //$user = factory(App\User::class)->create();
+        //$calendar = factory(App\Calendar::class)->make();
         
-        //$calendars = factory(App\Calendar::class, 2)->create();
+        //$calendar->create();
+
+        //$calendar->user_id = $user->id;
+        //dd($calendar->summary);
+        
+        //$calendar->create();
+        
         //$events = factory(App\Event::class, 2)->make();
         //dd($calendars->toArray());
 

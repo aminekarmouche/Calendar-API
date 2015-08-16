@@ -37,8 +37,6 @@ class CalendarEventController extends Controller
             
             //Using Eloquent                                         
             $events = $this->user->calendars->find($calendar_id)->events->all();
-
-
             if (Input::get('format') == 'ical') {
                 foreach ($events as $key => $event) {
                     $vevent = event_to_ical($event);
@@ -83,16 +81,14 @@ class CalendarEventController extends Controller
         if ($validator->fails()) {
             return response($validator->errors(), 400);
         } else {
-            $event = Event::create([
-            'summary' => $request->summary,
-            'start' => $request->start, 
-            'end' => $request->end,
-            'calendar_id' => $calendar_id
-            //'calendar_id' => $this->user->calendars->find($calendar_id)->id
-                ]);
 
+            $event = new Event;
+            $event->summary = $request->summary;
+            $event->start = $request->start;
+            $event->end = $request->end;
+            $event->calendar_id = $calendar_id;
             $event->save();
-            return response($event, 201);  
+            return response($event, 201);
         }
     }
 
@@ -110,17 +106,10 @@ class CalendarEventController extends Controller
             if (Input::get('format') == 'ical') {
 
                 $event = Event::find($event_id);
-
                 $ical_event = event_to_ical($event);
                 return $ical_event;
             } else {
                 $event = $this->user->calendars->find($calendar_id)->events->find($event_id);
-                /*$event = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
-                                             ->select('events.id', 'events.summary', 'events.start', 'events.end', 'events.calendar_id')
-                                             ->where('user_id', $this->user->id)
-                                             ->where('calendars.id', $calendar_id)
-                                             ->where('events.id', $event_id)
-                                             ->get();*/
                 return $event;                                
             }
         } catch(ModelNotFoundException $e) 
@@ -153,22 +142,13 @@ class CalendarEventController extends Controller
             $validator = Validator::make($request->all(), $rules, $messages);
             if ($validator->fails()) {
                 return response($validator->errors(), 400);
+            } else {
+                $event = $this->user->calendars->find($calendar_id)->events->find($event_id);
+                $event->fill(\Request::all());
+                $event->save();
+
+                return response($event, 200);    
             }
-
-            $id = $this->user->calendars->find($calendar_id)->events->find($event_id);
-
-            
-            /*$event_id = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
-                                             ->select('events.id', 'events.summary', 'events.start', 'events.end', 'events.calendar_id')
-                                             ->where('user_id', $this->user->id)
-                                             ->where('calendars.id', $calendar_id)
-                                             ->where('events.id', $event_id)
-                                             ->first()->id;
-            
-            $event = Event::findOrFail($event_id);
-            $event->fill(\Request::all());
-            $event->save();*/
-            return response($event, 200);
 
         } catch(ModelNotFoundException $e) 
         {
@@ -185,12 +165,9 @@ class CalendarEventController extends Controller
      */
     public function destroy($calendar_id, $event_id)
     {
-
         try
         {
-        $id = $this->user->calendars->find($calendar_id)->events->find($event_id)->id;
-        $event_to_delete = Event::find($id);
-        $event_to_delete->delete();
+        $id = $this->user->calendars->find($calendar_id)->events->find($event_id)->delete();
         return response('Event Deleted!', 200);
         
         } catch(ModelNotFoundException $e) 
