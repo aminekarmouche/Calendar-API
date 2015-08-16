@@ -12,8 +12,9 @@ class CalendarEventControllerTest extends TestCase
 	public function setUp()
     {
         parent::setUp();
-        Artisan::call('migrate');
-        Artisan::call('db:seed');
+        //Artisan::call('migrate');
+        //Artisan::call('db:seed');
+       
         
         $this->client = new GuzzleHttp\Client(['base_uri' => 'http://localhost:9000/api/v1/', 'auth' => ['first@gmail.com', 'secret']]);
 
@@ -56,18 +57,18 @@ class CalendarEventControllerTest extends TestCase
 
     public function test_show_event()
         {
-           /* $uri = 'calendars/1/events/1';
+            $uri = 'calendars/1/events/1';
 
             $response = $this->client->get($uri);
 
-            $this->assertEquals(200, $response->getStatusCode());*/
+            $this->assertEquals(200, $response->getStatusCode());
         } 
         
 
     public function test_store_event()
     {
 
-       /* $uri = 'calendars/1/events';
+        $uri = 'calendars/1/events';
 
         $response = $this->client->post($uri, [
             'form_params' => ['summary' => 'my summary',
@@ -77,11 +78,11 @@ class CalendarEventControllerTest extends TestCase
         ]);
 
         $this->assertEquals(201, $response->getStatusCode());
-*/
+
     }
     public function test_update_event()
     {
-        /*$uri = 'calendars/1/events/1';
+        $uri = 'calendars/1/events/1';
         $test_summary = 'test summary';
 
         $response = $this->client->put($uri, [
@@ -89,16 +90,16 @@ class CalendarEventControllerTest extends TestCase
             ]
         ]);
 
-        $this->assertEquals(200, $response->getStatusCode());*/
+        $this->assertEquals(200, $response->getStatusCode());
 
     }
 
 
     public function test_delete_event()
     {   
-        /*$uri = 'calendars/1/events/1';
+        $uri = 'calendars/1/events/1';
         $response = $this->client->delete($uri);
-        $this->assertEquals(200, $response->getStatusCode());*/
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
 
