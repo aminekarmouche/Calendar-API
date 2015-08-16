@@ -31,6 +31,6 @@ class Kernel extends HttpKernel
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'auth.basic.once' => \App\Http\Middleware\AuthenticateOnceWithBasicAuth::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'calendarExists' => \App\Http\Middleware\CalendarExists::class,
+        'validateParams' => \App\Http\Middleware\ValidateParams::class,
     ];
 }
