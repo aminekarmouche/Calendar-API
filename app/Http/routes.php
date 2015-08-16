@@ -23,8 +23,8 @@ Route::get('/', function () {
 //REST routing!
 $prefix = 'api/'.getenv('API_VERSION');
 
-Route::group(['prefix' => $prefix], function () {	
-	Route::resource('calendars', 'CalendarsController');
+Route::group(['prefix' => $prefix, 'middleware' => 'calendarExists'], function () {	
+	Route::resource('calendars', 'CalendarsController', ['except' => ['create', 'edit']]);
 	Route::delete('calendars/{calendars}/clear', 'CalendarsController@clear');
-	Route::resource('calendars.events', 'CalendarEventController');
+	Route::resource('calendars.events', 'CalendarEventController', ['except' => ['create', 'edit']]);
 });

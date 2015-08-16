@@ -25,8 +25,12 @@ class CalendarsController extends Controller
      */
     public function index()
     {   
-        $calendars = Calendar::where('user_id', $this->user->id)->get();
-        $ical_calendars = array();
+        /*$calendars = Calendar::where('user_id', $this->user->id)->get();
+        $ical_calendars = array();*/
+
+        //using eloquent
+        $calendars = $this->user->calendars->all();
+        
         try {            
             if (Input::get('format') == 'ical') {
                 foreach ($calendars as $calendar) {

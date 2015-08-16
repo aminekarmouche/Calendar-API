@@ -4,6 +4,7 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\User;
+use App\Calendar;
 use GuzzleHttp\Client;
 
 require('vendor/autoload.php');
@@ -11,8 +12,8 @@ require('vendor/autoload.php');
 class ExampleTest extends TestCase
 {
 
-
-
+    use DatabaseTransactions;
+    
     //overloading get post put patch and delete methods
     public function __call($method, $args)
     {
@@ -41,7 +42,26 @@ class ExampleTest extends TestCase
      * @return void
      */
 
-    public function test_not_authenticated_user()
+    public function test_database()
     {
+        //$this->seeInDatabase('calendar', ['id' => '2']);
+
+        /*factory(App\Calendar::class, 20)->create()
+                                        ->each(function($calendar) {
+                                            $calendar->relatedItems()->save(factory('App\User')->make());
+                                        });*/
+/*        $users = factory(App\User::class, 3)->create()
+                                            ->each(function($u){
+                                                $u->calendars()->save(factory('App\Calendar')->make());
+                                            });*/
+        /*$calendars = factory(App\Calendar::class)->create()
+                                                 ->each(function($u){
+                                                    $u->user()->save(factory('App\User')->make());
+                                                 });*/
+        
+        //$calendars = factory(App\Calendar::class, 2)->create();
+        //$events = factory(App\Event::class, 2)->make();
+        //dd($calendars->toArray());
+
     }
 }

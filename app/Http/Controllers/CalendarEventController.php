@@ -29,22 +29,27 @@ class CalendarEventController extends Controller
     {   
         try
         {
-            $events = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
+/*            $events = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
                                          ->select('events.id', 'events.summary', 'events.start', 'events.end', 'events.calendar_id')
                                          ->where('user_id', $this->user->id)
                                          ->where('calendars.id', $calendar_id)
-                                         ->get();
+                                         ->get();*/
+            
+            //Using Eloquent                                         
+            $events = $this->user->calendars->find($calendar_id)->events->all();
+
 
             if (Input::get('format') == 'ical') {
-                
-                $ical_events[] = array();
-                foreach ($events as $event) {
-                    $ical_events[] = event_to_ical($event);
+                foreach ($events as $key => $event) {
+                    $vevent = event_to_ical($event);
+                    $ical_events[] = $vevent->render();
+                    
                 }
-                return($ical_events);
+
+                return response($ical_events, 200);
 
             } else {
-                return $events;    
+                return response()->json($events, 200);    
             }            
         } catch(Exception $e) 
         {
@@ -66,11 +71,12 @@ class CalendarEventController extends Controller
         $rules = [
             'summary' => 'required|string',
             'start' => 'required|date|before:end',
-            'end' => 'required|date'
+            'end' => 'required|date',
+            'calendar_id' => 'exists:calendars,id,id,'.$calendar_id
         ];
 
         $messages = [
-            'required' => 'The :attribute field is required.',
+            'required' => 'The :attribute field is required.'
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -81,8 +87,10 @@ class CalendarEventController extends Controller
             'summary' => $request->summary,
             'start' => $request->start, 
             'end' => $request->end,
-            'calendar_id' => $calendar_id,
+            'calendar_id' => $calendar_id
+            //'calendar_id' => $this->user->calendars->find($calendar_id)->id
                 ]);
+
             $event->save();
             return response($event, 201);  
         }
@@ -106,13 +114,13 @@ class CalendarEventController extends Controller
                 $ical_event = event_to_ical($event);
                 return $ical_event;
             } else {
-
-                $event = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
+                $event = $this->user->calendars->find($calendar_id)->events->find($event_id);
+                /*$event = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
                                              ->select('events.id', 'events.summary', 'events.start', 'events.end', 'events.calendar_id')
                                              ->where('user_id', $this->user->id)
                                              ->where('calendars.id', $calendar_id)
                                              ->where('events.id', $event_id)
-                                             ->get();
+                                             ->get();*/
                 return $event;                                
             }
         } catch(ModelNotFoundException $e) 
@@ -145,8 +153,12 @@ class CalendarEventController extends Controller
             $validator = Validator::make($request->all(), $rules, $messages);
             if ($validator->fails()) {
                 return response($validator->errors(), 400);
-            } 
-            $event_id = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
+            }
+
+            $id = $this->user->calendars->find($calendar_id)->events->find($event_id);
+
+            
+            /*$event_id = DB::table('events')->join('calendars', 'events.calendar_id', '=', 'calendars.id')
                                              ->select('events.id', 'events.summary', 'events.start', 'events.end', 'events.calendar_id')
                                              ->where('user_id', $this->user->id)
                                              ->where('calendars.id', $calendar_id)
@@ -155,7 +167,7 @@ class CalendarEventController extends Controller
             
             $event = Event::findOrFail($event_id);
             $event->fill(\Request::all());
-            $event->save();
+            $event->save();*/
             return response($event, 200);
 
         } catch(ModelNotFoundException $e) 
@@ -173,11 +185,14 @@ class CalendarEventController extends Controller
      */
     public function destroy($calendar_id, $event_id)
     {
+
         try
         {
-            DB::table('events')->where('events.id', $event_id)
-                                    ->where('calendar_id', $calendar_id)
-                                    ->delete();
+        $id = $this->user->calendars->find($calendar_id)->events->find($event_id)->id;
+        $event_to_delete = Event::find($id);
+        $event_to_delete->delete();
+        return response('Event Deleted!', 200);
+        
         } catch(ModelNotFoundException $e) 
         {
             return response('Event not found!', 404);

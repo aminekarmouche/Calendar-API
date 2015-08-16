@@ -7,7 +7,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Artisan;
 
 
-class CalendarsControllerTest extends TestCase
+class CalendarsControllerTest 
 {
     use DatabaseMigrations;
 
